@@ -1,8 +1,18 @@
 import Foundation
 
 public struct ESGetMultipleDocumentsResponse<Document: Decodable>: Decodable {
+    public let hits: Hits
+}
+
+extension ESGetMultipleDocumentsResponse {
     public struct Hits: Decodable {
-        public struct Total: Decodable {
+        public let total: Total?
+        public let hits: [ESGetSingleDocumentResponse<Document>]
+    }
+}
+
+extension ESGetMultipleDocumentsResponse.Hits {
+    public struct Total: Decodable {
             public let value: Int
             public let relation: Relation
 
@@ -10,10 +20,4 @@ public struct ESGetMultipleDocumentsResponse<Document: Decodable>: Decodable {
                 case eq, gte
             }
         }
-
-        public let total: Total?
-        public let hits: [ESGetSingleDocumentResponse<Document>]
-    }
-
-    public let hits: Hits
 }
