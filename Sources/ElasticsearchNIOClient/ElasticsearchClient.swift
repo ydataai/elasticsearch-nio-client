@@ -6,10 +6,10 @@ import Logging
 import NIOHTTP1
 
 public struct ElasticsearchClient {
-    
+
     public static let defaultPort = 9200
     public static let allowedUrlSchemes = ["http", "https"]
-    
+
     let requester: ElasticsearchRequester
     let eventLoop: EventLoop
     let logger: Logger
@@ -20,7 +20,7 @@ public struct ElasticsearchClient {
     let password: String?
     let jsonEncoder: JSONEncoder
     let jsonDecoder: JSONDecoder
-    
+
     public init(httpClient: HTTPClient, eventLoop: EventLoop, logger: Logger, url string: String, username: String? = nil, password: String? = nil, jsonEncoder: JSONEncoder = JSONEncoder(), jsonDecoder: JSONDecoder = JSONDecoder()) throws {
         guard let url = URL(string: string) else { throw ValidationError.invalidURLString }
         try self.init(
@@ -42,7 +42,7 @@ public struct ElasticsearchClient {
         else { throw ValidationError.missingURLScheme }
         guard Self.allowedUrlSchemes.contains(scheme) else { throw ValidationError.invalidURLScheme }
         guard let host = url.host, !host.isEmpty else { throw ValidationError.missingURLHost }
-        
+
         try self.init(
             requester: HTTPClientElasticsearchRequester(eventLoop: eventLoop, logger: logger, username: username, password: password, client: httpClient),
             eventLoop: eventLoop,
@@ -56,7 +56,7 @@ public struct ElasticsearchClient {
             jsonDecoder: jsonDecoder
         )
     }
-    
+
     public init(httpClient: HTTPClient, eventLoop: EventLoop, logger: Logger, scheme: String? = nil, host: String, port: Int? = defaultPort, username: String? = nil, password: String? = nil, jsonEncoder: JSONEncoder = JSONEncoder(), jsonDecoder: JSONDecoder = JSONDecoder()) throws {
         try self.init(
             requester: HTTPClientElasticsearchRequester(eventLoop: eventLoop, logger: logger, username: username, password: password, client: httpClient),
@@ -93,6 +93,10 @@ public struct ElasticsearchClient {
     func sendRequest(url: String, method: HTTPMethod, headers: HTTPHeaders, body: ByteBuffer?) -> EventLoopFuture<ByteBuffer> {
         requester.executeRequest(url: url, method: method, headers: headers, body: body).flatMapThrowing { clientResponse in
             self.logger.trace("Response: \(clientResponse)")
+            if let body = clientResponse.body {
+                let x = String(buffer: body)
+                self.logger.trace("🛬 ANDRE REQUEST RECEIVED \(x)")
+            }
             if let responseBody = clientResponse.body {
                 self.logger.trace("Response body: \(String(decoding: responseBody.readableBytesView, as: UTF8.self))")
             }

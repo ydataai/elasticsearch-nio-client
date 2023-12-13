@@ -17,6 +17,8 @@ public struct HTTPClientElasticsearchRequester: ElasticsearchRequester {
         }
         let httpClientBody: HTTPClient.Body?
         if let body = body {
+            let x = String(buffer: body)
+            self.logger.trace("🛫 ANDRE REQUEST SENT \(x)")
             httpClientBody = .byteBuffer(body)
         } else {
             httpClientBody = nil
